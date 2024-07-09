@@ -471,6 +471,15 @@ public:
     Result set_in_progress(bool in_progress) const;
 
     /**
+     * @brief
+     *
+     * This function is blocking.
+     *
+     * @return Result of request.
+     */
+    Result set_capabilities(int32_t capabilities) const;
+
+    /**
      * @brief Callback type for subscribe_take_photo.
      */
     using TakePhotoCallback = std::function<void(int32_t)>;

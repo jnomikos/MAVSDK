@@ -228,6 +228,13 @@ bool CameraServerImpl::parse_version_string(const std::string& version_str, uint
     return true;
 }
 
+CameraServer::Result CameraServerImpl::set_capabilities(uint32_t capability_flags)
+{
+    _capability_flags |= capability_flags;
+
+    return CameraServer::Result::Success;
+}
+
 CameraServer::Result CameraServerImpl::set_information(CameraServer::Information information)
 {
     if (!parse_version_string(information.firmware_version)) {
@@ -994,30 +1001,29 @@ std::optional<mavlink_command_ack_t> CameraServerImpl::process_camera_informatio
     parse_version_string(_information.firmware_version, firmware_version);
 
     // capability flags are determined by subscriptions
-    uint32_t capability_flags{};
 
     if (!_take_photo_callbacks.empty()) {
-        capability_flags |= CAMERA_CAP_FLAGS::CAMERA_CAP_FLAGS_CAPTURE_IMAGE;
+        _capability_flags |= CAMERA_CAP_FLAGS::CAMERA_CAP_FLAGS_CAPTURE_IMAGE;
     }
 
     if (!_start_video_callbacks.empty()) {
-        capability_flags |= CAMERA_CAP_FLAGS::CAMERA_CAP_FLAGS_CAPTURE_VIDEO;
+        _capability_flags |= CAMERA_CAP_FLAGS::CAMERA_CAP_FLAGS_CAPTURE_VIDEO;
     }
 
     if (!_set_mode_callbacks.empty()) {
-        capability_flags |= CAMERA_CAP_FLAGS::CAMERA_CAP_FLAGS_HAS_MODES;
+        _capability_flags |= CAMERA_CAP_FLAGS::CAMERA_CAP_FLAGS_HAS_MODES;
     }
 
     if (_is_video_streaming_set) {
-        capability_flags |= CAMERA_CAP_FLAGS::CAMERA_CAP_FLAGS_HAS_VIDEO_STREAM;
+        _capability_flags |= CAMERA_CAP_FLAGS::CAMERA_CAP_FLAGS_HAS_VIDEO_STREAM;
     }
 
     if (!_tracking_point_callbacks.empty()) {
-        capability_flags |= CAMERA_CAP_FLAGS::CAMERA_CAP_FLAGS_HAS_TRACKING_POINT;
+        _capability_flags |= CAMERA_CAP_FLAGS::CAMERA_CAP_FLAGS_HAS_TRACKING_POINT;
     }
 
     if (!_tracking_rectangle_callbacks.empty()) {
-        capability_flags |= CAMERA_CAP_FLAGS::CAMERA_CAP_FLAGS_HAS_TRACKING_RECTANGLE;
+        _capability_flags |= CAMERA_CAP_FLAGS::CAMERA_CAP_FLAGS_HAS_TRACKING_RECTANGLE;
     }
 
     _information.vendor_name.resize(sizeof(mavlink_camera_information_t::vendor_name));
@@ -1042,7 +1048,7 @@ std::optional<mavlink_command_ack_t> CameraServerImpl::process_camera_informatio
             _information.horizontal_resolution_px,
             _information.vertical_resolution_px,
             _information.lens_id,
-            capability_flags,
+            _capability_flags,
             _information.definition_file_version,
             _information.definition_file_uri.c_str(),
             0);

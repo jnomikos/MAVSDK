@@ -24,6 +24,7 @@ public:
     CameraServer::Result set_information(CameraServer::Information information);
     CameraServer::Result set_video_streaming(CameraServer::VideoStreaming video_streaming);
     CameraServer::Result set_in_progress(bool in_progress);
+    CameraServer::Result set_capabilities(uint32_t capability_flags);
 
     CameraServer::TakePhotoHandle
     subscribe_take_photo(const CameraServer::TakePhotoCallback& callback);
@@ -196,6 +197,8 @@ private:
     void send_capture_status();
 
     bool _is_information_set{};
+
+    uint32_t _capability_flags{};
 
     // CAMERA_TRACKING_STATUS messages sending fields
     std::mutex _tracking_status_mutex{};

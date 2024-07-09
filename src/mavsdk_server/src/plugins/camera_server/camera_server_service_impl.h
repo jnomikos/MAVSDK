@@ -752,6 +752,36 @@ public:
         return grpc::Status::OK;
     }
 
+    grpc::Status SetCapabilities(
+        grpc::ServerContext* /* context */,
+        const rpc::camera_server::SetCapabilitiesRequest* request,
+        rpc::camera_server::SetCapabilitiesResponse* response) override
+    {
+        if (_lazy_plugin.maybe_plugin() == nullptr) {
+            if (response != nullptr) {
+                // For server plugins, this should never happen, they should always be
+                // constructible.
+                auto result = mavsdk::CameraServer::Result::Unknown;
+                fillResponseWithResult(response, result);
+            }
+
+            return grpc::Status::OK;
+        }
+
+        if (request == nullptr) {
+            LogWarn() << "SetCapabilities sent with a null request! Ignoring...";
+            return grpc::Status::OK;
+        }
+
+        auto result = _lazy_plugin.maybe_plugin()->set_capabilities(request->capabilities());
+
+        if (response != nullptr) {
+            fillResponseWithResult(response, result);
+        }
+
+        return grpc::Status::OK;
+    }
+
     grpc::Status SubscribeTakePhoto(
         grpc::ServerContext* /* context */,
         const mavsdk::rpc::camera_server::SubscribeTakePhotoRequest* /* request */,

@@ -43,6 +43,11 @@ CameraServer::Result CameraServer::set_in_progress(bool in_progress) const
     return _impl->set_in_progress(in_progress);
 }
 
+CameraServer::Result CameraServer::set_capabilities(int32_t capabilities) const
+{
+    return _impl->set_capabilities(capabilities);
+}
+
 CameraServer::TakePhotoHandle CameraServer::subscribe_take_photo(const TakePhotoCallback& callback)
 {
     return _impl->subscribe_take_photo(callback);
