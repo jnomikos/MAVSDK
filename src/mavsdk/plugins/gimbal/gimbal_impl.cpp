@@ -109,6 +109,10 @@ void GimbalImpl::process_heartbeat(const mavlink_message_t& message)
         return item.gimbal_manager_compid == message.compid;
     });
 
+    if(message.compid == 154) {
+        return;
+    }
+
     // Every component can potentially be a gimbal manager. Therefore, on any
     // heartbeat arriving, we create an entry in the potential gimbal manager
     // list and subsequently try to figure out whether it sends gimbal manager
@@ -126,6 +130,7 @@ void GimbalImpl::process_heartbeat(const mavlink_message_t& message)
         }
     }();
 
+    LogWarn() << "MSG comp id: " << std::to_string(message.compid);
     check_is_gimbal_valid(gimbal);
 }
 
@@ -295,7 +300,8 @@ void GimbalImpl::process_gimbal_device_attitude_status(const mavlink_message_t& 
         if (std::any_of(_gimbals.begin(), _gimbals.end(), [](const GimbalItem& item) {
                 return item.is_valid;
             })) {
-            LogWarn() << "Received gimbal manager status for unknown gimbal.";
+            LogWarn() << "Received gimbal manager status for unknown gimbal of component id: "
+                      << std::to_string(message.compid);
         }
         // Otherwise, ignore it silently
         return;
